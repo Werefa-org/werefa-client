@@ -46,6 +46,14 @@ export function LoginForm() {
       <Button type="submit" disabled={pending} aria-busy={pending}>
         {pending ? "Signing in…" : "Log in"}
       </Button>
+      <div className="flex justify-center mt-2">
+        <a
+          href="/login/otp"
+          className="text-xs font-semibold text-accent hover:underline transition-colors"
+        >
+          Sign in with OTP (One-Time Password) →
+        </a>
+      </div>
     </form>
   );
 }
