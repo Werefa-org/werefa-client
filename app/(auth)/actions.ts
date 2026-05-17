@@ -6,10 +6,13 @@ import { apiFetch, ApiRequestError } from "@/lib/api/server";
 import type { components } from "@/lib/api/schema";
 import { clearSession, setSessionToken } from "@/lib/session";
 
-export type AuthState = {
-  error?: string;
-  fields?: { email?: string; full_name?: string };
-} | undefined;
+export type AuthState =
+  | {
+      error?: string;
+      fields?: { email?: string; full_name?: string };
+      success?: boolean;
+    }
+  | undefined;
 
 type Token = components["schemas"]["Token"];
 
@@ -42,7 +45,10 @@ export async function loginAction(
     return { error: "Enter a valid email.", fields: { email } };
   }
   if (password.length < 8) {
-    return { error: "Password must be at least 8 characters.", fields: { email } };
+    return {
+      error: "Password must be at least 8 characters.",
+      fields: { email },
+    };
   }
 
   try {
@@ -97,7 +103,10 @@ export async function signupAction(
     if (err instanceof ApiRequestError) {
       return { error: err.detail, fields: { email, full_name } };
     }
-    return { error: "Something went wrong. Try again.", fields: { email, full_name } };
+    return {
+      error: "Something went wrong. Try again.",
+      fields: { email, full_name },
+    };
   }
 
   redirect("/");
@@ -106,4 +115,92 @@ export async function signupAction(
 export async function logoutAction(): Promise<void> {
   await clearSession();
   redirect("/login");
+}
+
+export async function forgotPasswordAction(
+  _prev: AuthState,
+  formData: FormData,
+): Promise<AuthState> {
+  try {
+    const email = String(formData.get("email") ?? "").trim();
+    console.log("forgotPasswordAction called with email:", email);
+
+    if (!emailLooksValid(email)) {
+      return { error: "Enter a valid email.", fields: { email } };
+    }
+
+    const encodedEmail = encodeURIComponent(email);
+    const path = `/password-recovery/${encodedEmail}`;
+    console.log("Calling apiFetch with path:", path);
+    const response = await apiFetch<{ message: string }>(path, {
+      method: "POST",
+      authenticated: false,
+    });
+    console.log("Password recovery response:", response);
+    return { success: true };
+  } catch (err) {
+    console.error("Error in forgotPasswordAction:", err);
+    const email = String(formData.get("email") ?? "").trim();
+    if (err instanceof ApiRequestError) {
+      return {
+        error: err.detail,
+        fields: { email },
+      };
+    }
+    return {
+      error: "Failed to send recovery email. Try again.",
+      fields: { email },
+    };
+  }
+}
+
+export async function resetPasswordAction(
+  _prev: AuthState,
+  formData: FormData,
+): Promise<AuthState> {
+  const token = String(formData.get("token") ?? "").trim();
+  const password = String(formData.get("password") ?? "");
+  const confirmPassword = String(formData.get("confirmPassword") ?? "");
+
+  if (!token) {
+    return { error: "Invalid or missing reset token." };
+  }
+
+  if (password.length < 8) {
+    return { error: "Password must be at least 8 characters." };
+  }
+
+  if (password !== confirmPassword) {
+    return { error: "Passwords do not match." };
+  }
+
+  // Optional: Validate password strength (at least one uppercase, one number, one special char)
+  const passwordRegex = /^(?=.*[A-Z])(?=.*\d)/;
+  if (!passwordRegex.test(password)) {
+    return {
+      error:
+        "Password should contain at least one uppercase letter and one number.",
+    };
+  }
+
+  try {
+    await apiFetch<{ message: string }>("/reset-password", {
+      method: "POST",
+      authenticated: false,
+      body: { token, new_password: password },
+    });
+    redirect(
+      "/login?message=Password reset successful. Please log in with your new password.",
+    );
+  } catch (err) {
+    if (err instanceof ApiRequestError) {
+      return {
+        error:
+          err.status === 400 || err.status === 401
+            ? "Invalid or expired reset link."
+            : err.detail,
+      };
+    }
+    return { error: "Failed to reset password. Try again." };
+  }
 }

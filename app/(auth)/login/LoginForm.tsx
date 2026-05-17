@@ -32,6 +32,12 @@ export function LoginForm() {
         minLength={8}
         placeholder="••••••••"
       />
+      <a
+        href="/forgot-password"
+        className="text-xs text-muted hover:text-foreground transition-colors text-right"
+      >
+        Forgot password?
+      </a>
       {state?.error ? (
         <p className="text-sm text-danger" role="alert">
           {state.error}
