@@ -61,6 +61,7 @@ export default async function QueueBoardPage({
           token={token}
           providerId={provider.id}
           allServices={allServices}
+          initialIsPaused={provider.is_paused ?? false}
         />
       ) : null}
     </AppShell>

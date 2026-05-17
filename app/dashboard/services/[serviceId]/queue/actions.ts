@@ -144,3 +144,29 @@ export async function createBroadcastAction(
   }
 }
 
+export async function pauseProviderQueueAction(providerId: string) {
+  try {
+    await apiFetch(`/providers/${providerId}/pause-queue`, {
+      method: "POST",
+    });
+    revalidatePath("/dashboard");
+    return { ok: true };
+  } catch (err) {
+    if (err instanceof ApiRequestError) return { ok: false, error: err.detail };
+    return { ok: false, error: "Failed to pause queue. Try again." };
+  }
+}
+
+export async function resumeProviderQueueAction(providerId: string) {
+  try {
+    await apiFetch(`/providers/${providerId}/resume-queue`, {
+      method: "POST",
+    });
+    revalidatePath("/dashboard");
+    return { ok: true };
+  } catch (err) {
+    if (err instanceof ApiRequestError) return { ok: false, error: err.detail };
+    return { ok: false, error: "Failed to resume queue. Try again." };
+  }
+}
+

@@ -12,6 +12,7 @@ import { useQueueStream } from "@/hooks/useQueueStream";
 import type { components } from "@/lib/api/schema";
 import { useBroadcasts } from "@/hooks/useBroadcasts";
 import { BroadcastModal } from "@/components/BroadcastModal";
+import { QueuePauseToggle } from "@/components/QueuePauseToggle";
 
 type Ticket = components["schemas"]["QueueEntryPublic"];
 type MyService = { id: string; name: string };
@@ -60,6 +61,7 @@ export function QueueBoardClient({
   token,
   providerId,
   allServices,
+  initialIsPaused,
 }: {
   serviceId: string;
   serviceName: string;
@@ -67,7 +69,9 @@ export function QueueBoardClient({
   token: string | null;
   providerId: string;
   allServices: MyService[];
+  initialIsPaused: boolean;
 }) {
+  const [isPaused, setIsPaused] = useState(initialIsPaused);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { broadcasts, refresh: refreshBroadcasts } = useBroadcasts({
     providerId,
@@ -130,14 +134,21 @@ export function QueueBoardClient({
           )}
         </div>
         
-        <button
-          onClick={refreshTickets}
-          disabled={isRefreshing}
-          className="text-xs text-muted hover:text-foreground flex items-center gap-1 disabled:opacity-50"
-        >
-          {isRefreshing ? <Loader2 className="w-3 h-3 animate-spin" /> : null}
-          Sync
-        </button>
+        <div className="flex items-center gap-4">
+          <QueuePauseToggle
+            providerId={providerId}
+            isPaused={isPaused}
+            setIsPaused={setIsPaused}
+          />
+          <button
+            onClick={refreshTickets}
+            disabled={isRefreshing}
+            className="text-xs text-muted hover:text-foreground flex items-center gap-1 disabled:opacity-50 cursor-pointer"
+          >
+            {isRefreshing ? <Loader2 className="w-3 h-3 animate-spin" /> : null}
+            Sync
+          </button>
+        </div>
       </div>
 
       <div className="flex flex-col gap-3">
