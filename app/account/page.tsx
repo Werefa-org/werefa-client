@@ -3,6 +3,7 @@ import {
   LayoutDashboard,
   LogOut,
   ShieldCheck,
+  User,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -26,11 +27,21 @@ export default async function AccountPage() {
         <CopyId id={me.id} />
       </section>
 
-      <section className="rounded-2xl border border-border bg-background">
+      <section className="rounded-2xl border border-border bg-background mt-4">
+        <Link
+          href="/account/edit"
+          className="flex items-center gap-3 px-4 py-3.5 transition-colors hover:bg-surface"
+        >
+          <User className="h-5 w-5 text-muted" aria-hidden />
+          <span className="flex-1 text-sm font-medium">
+            Edit profile & password
+          </span>
+          <ChevronRight className="h-4 w-4 text-muted" aria-hidden />
+        </Link>
         {isProvider ? (
           <Link
             href="/dashboard"
-            className="flex items-center gap-3 px-4 py-3.5 transition-colors hover:bg-surface"
+            className="flex items-center gap-3 border-t border-border px-4 py-3.5 transition-colors hover:bg-surface"
           >
             <LayoutDashboard className="h-5 w-5 text-muted" aria-hidden />
             <span className="flex-1 text-sm font-medium">
@@ -41,7 +52,7 @@ export default async function AccountPage() {
         ) : (
           <Link
             href="/dashboard/setup"
-            className="flex items-center gap-3 px-4 py-3.5 transition-colors hover:bg-surface"
+            className="flex items-center gap-3 border-t border-border px-4 py-3.5 transition-colors hover:bg-surface"
           >
             <LayoutDashboard className="h-5 w-5 text-muted" aria-hidden />
             <span className="flex-1 text-sm font-medium">Run a business</span>
