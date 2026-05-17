@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-import { DocumentList } from "@/components/DocumentList";
+import { DocumentList, type ProviderDocument } from "@/components/DocumentList";
 import { DocumentUploadForm } from "@/components/DocumentUploadForm";
 import { AppShell } from "@/components/AppShell";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -9,19 +9,18 @@ import { apiFetch } from "@/lib/api/server";
 import type { components } from "@/lib/api/schema";
 
 type ProviderDetail = components["schemas"]["ProviderDiscoveryPublic"];
-type ProviderDocument = components["schemas"]["ProviderDocumentPublic"];
 
 export default async function AdminProviderKYCPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
   const me = await requireMe();
   if (!me.is_superuser) {
     redirect("/dashboard");
   }
 
-  const { id: providerId } = params;
+  const { id: providerId } = await params;
 
   let provider: ProviderDetail;
   let documents: ProviderDocument[] = [];

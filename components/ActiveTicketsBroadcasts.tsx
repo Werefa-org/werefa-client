@@ -6,7 +6,7 @@ import { BroadcastBanner } from "./BroadcastBanner";
 
 type Ticket = {
   id: string;
-  provider_id: string;
+  provider_id?: string | null;
   service_item_id: string;
 };
 

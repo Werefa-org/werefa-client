@@ -1,9 +1,13 @@
 import { redirect } from "next/navigation";
 import { AppShell } from "@/components/AppShell";
 import { apiFetch, ApiRequestError } from "@/lib/api/server";
-import type { components } from "@/lib/api/schema";
-
-type JoinInviteResolved = components["schemas"]["JoinInviteResolved"];
+// Local type — not yet in auto-generated schema
+type JoinInviteResolved = {
+  token: string;
+  slug: string;
+  service_item_id: string;
+  expires_at?: string | null;
+};
 
 export default async function JoinDeepLinkPage({
   searchParams,
@@ -33,7 +37,7 @@ export default async function JoinDeepLinkPage({
     const res = await apiFetch<JoinInviteResolved>(`/join-invites/resolve?token=${token}`, {
       method: "GET",
     });
-    resolved = res.data;
+    resolved = res;
   } catch (err) {
     if (err instanceof ApiRequestError) {
       error = err.detail;

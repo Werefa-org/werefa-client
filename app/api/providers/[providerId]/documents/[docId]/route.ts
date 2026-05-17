@@ -5,7 +5,7 @@ import { requireMe } from "@/lib/dal";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { providerId: string; docId: string } },
+  { params }: { params: Promise<{ providerId: string; docId: string }> },
 ) {
   try {
     // 1. Authenticate user
@@ -16,7 +16,7 @@ export async function GET(
       return new Response("Unauthorized", { status: 401 });
     }
 
-    const { providerId, docId } = params;
+    const { providerId, docId } = await params;
 
     // 2. Fetch the document file from API backend
     const res = await fetch(

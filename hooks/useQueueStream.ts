@@ -32,10 +32,11 @@ export function useQueueStream(
   useEffect(() => {
     if (!client) return;
 
-    return client.onMessage((msg) => {
+    const unsubscribe = client.onMessage((msg) => {
       // Upon receiving any update event, refresh the full list
       refreshTickets();
     });
+    return () => { unsubscribe(); };
   }, [client, refreshTickets]);
 
   return { tickets, wsState, isRefreshing, refreshTickets };

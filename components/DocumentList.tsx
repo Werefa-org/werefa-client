@@ -4,7 +4,12 @@ import { useState } from "react";
 import { FileText, Download, Loader2 } from "lucide-react";
 import type { components } from "@/lib/api/schema";
 
-type ProviderDocument = components["schemas"]["ProviderDocumentPublic"];
+export type ProviderDocument = {
+  id: string;
+  provider_id: string;
+  filename: string;
+  created_at?: string | null;
+};
 
 function parseDocumentInfo(filename: string) {
   const match = filename.match(/^\[(License|Permit|Insurance|Other)\]\s*(.*)$/i);

@@ -15,7 +15,7 @@ export function useBroadcasts({
   token,
   wsClient,
 }: {
-  providerId: string;
+  providerId?: string | null;
   token: string | null;
   wsClient: any;
 }) {
@@ -81,7 +81,7 @@ export function useBroadcasts({
       }
     });
 
-    return unsubscribe;
+    return () => { unsubscribe(); };
   }, [wsClient]);
 
   return { broadcasts, setBroadcasts, loading, refresh };

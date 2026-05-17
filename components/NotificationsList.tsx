@@ -30,7 +30,7 @@ export function NotificationsList({
 }) {
   const [notifications, setNotifications] = useState<Notification[]>(initialNotifications);
   const [readIds, setReadIds] = useState<string[]>(
-    initialNotifications.filter((n) => n.read_at !== null).map((n) => n.id)
+    initialNotifications.filter((n) => n.status === "read").map((n) => n.id)
   );
   const [loadingIds, setLoadingIds] = useState<string[]>([]);
   const [isBulkLoading, setIsBulkLoading] = useState(false);
@@ -95,7 +95,6 @@ export function NotificationsList({
             You have <span className="font-bold text-foreground">{unreadCount}</span> unread update{unreadCount > 1 ? "s" : ""}.
           </p>
           <Button
-            size="sm"
             variant="outline"
             onClick={handleMarkAllRead}
             disabled={isBulkLoading}

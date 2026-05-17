@@ -4,7 +4,7 @@ import { useActionState } from "react";
 import Link from "next/link";
 import { Mail, Loader2 } from "lucide-react";
 
-import { requestOtpAction, type OtpState } from "../../../otp/actions";
+import { requestOtpAction, type OtpState } from "../../otp/actions";
 import { Button } from "@/components/ui/Button";
 import { Field } from "@/components/ui/Field";
 

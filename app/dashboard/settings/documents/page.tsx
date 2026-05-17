@@ -1,13 +1,11 @@
 import { redirect } from "next/navigation";
 
-import { DocumentList } from "@/components/DocumentList";
+import { DocumentList, type ProviderDocument } from "@/components/DocumentList";
 import { AppShell } from "@/components/AppShell";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { getMyProvider, requireMe } from "@/lib/dal";
 import { apiFetch } from "@/lib/api/server";
 import type { components } from "@/lib/api/schema";
-
-type ProviderDocument = components["schemas"]["ProviderDocumentPublic"];
 
 export default async function ProviderDocumentsPage() {
   await requireMe();

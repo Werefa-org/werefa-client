@@ -13,7 +13,7 @@ export function useTicketStream(initialTicket: Ticket, token: string | null) {
   useEffect(() => {
     if (!client) return;
 
-    return client.onMessage((msg) => {
+    const unsubscribe = client.onMessage((msg) => {
       // Typically backend sends {"type": "queue_updated", "status": "serving", ...}
       if (msg.ticket_id === ticket.id) {
         setTicket((prev) => ({
@@ -22,6 +22,7 @@ export function useTicketStream(initialTicket: Ticket, token: string | null) {
         }));
       }
     });
+    return () => { unsubscribe(); };
   }, [client, ticket.id]);
 
   return { ticket, wsState, client };

@@ -1,6 +1,6 @@
 import type { ButtonHTMLAttributes } from "react";
 
-type Variant = "primary" | "secondary" | "ghost";
+type Variant = "primary" | "secondary" | "ghost" | "outline";
 
 const base =
   "inline-flex h-12 w-full cursor-pointer items-center justify-center rounded-2xl px-5 text-base font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.99]";
@@ -10,6 +10,7 @@ const variants: Record<Variant, string> = {
   secondary:
     "border border-border bg-background text-foreground hover:bg-surface",
   ghost: "text-muted hover:text-foreground",
+  outline: "border border-border bg-transparent text-foreground hover:bg-surface",
 };
 
 export function Button({

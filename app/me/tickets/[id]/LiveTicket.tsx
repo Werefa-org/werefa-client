@@ -33,7 +33,7 @@ function relativeTime(iso: string | null | undefined): string | null {
 export function LiveTicket({ initialTicket, token }: { initialTicket: Ticket; token: string | null }) {
   const { ticket, wsState, client } = useTicketStream(initialTicket, token);
   const { broadcasts } = useBroadcasts({
-    providerId: ticket.provider_id,
+    providerId: (ticket as any).provider_id as string | undefined,
     token,
     wsClient: client,
   });

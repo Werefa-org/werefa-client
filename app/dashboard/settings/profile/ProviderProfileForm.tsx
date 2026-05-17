@@ -10,7 +10,7 @@ import { StatusPill } from "@/components/ui/StatusPill";
 import { updateProviderAction, type ProfileUpdateState } from "./actions";
 import type { MyProvider } from "@/lib/dal";
 
-export function ProviderProfileForm({ provider }: { provider: MyProvider }) {
+export function ProviderProfileForm({ provider }: { provider: MyProvider & { last_rejection_reason?: string | null } }) {
   const action = updateProviderAction.bind(null, provider.id);
   const [state, formAction, pending] = useActionState(action, undefined);
 

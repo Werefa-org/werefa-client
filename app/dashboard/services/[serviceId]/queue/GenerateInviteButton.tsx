@@ -38,7 +38,7 @@ export function GenerateInviteButton({ serviceId }: { serviceId: string }) {
           body: { ttl_hours: ttlHours },
         }
       );
-      setInvite(res.data);
+      setInvite(res);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to generate invite.");
     } finally {
