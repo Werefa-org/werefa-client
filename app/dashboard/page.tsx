@@ -95,12 +95,21 @@ export default async function DashboardPage() {
       ) : null}
 
       {selected && selected.membership_role === "owner" ? (
-        <Link
-          href="/dashboard/members"
-          className="mt-4 flex h-12 w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-border text-sm font-medium text-muted hover:border-accent hover:bg-surface hover:text-accent"
-        >
-          Manage members
-        </Link>
+        <div className="mt-4 flex flex-col gap-3">
+          <Link
+            href="/dashboard/settings/profile"
+            className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-border text-sm font-medium text-muted hover:border-accent hover:bg-surface hover:text-accent"
+          >
+            <Settings className="h-4 w-4" aria-hidden />
+            Business Settings
+          </Link>
+          <Link
+            href="/dashboard/members"
+            className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-border text-sm font-medium text-muted hover:border-accent hover:bg-surface hover:text-accent"
+          >
+            Manage members
+          </Link>
+        </div>
       ) : null}
 
       {providers.length === 0 && isProvider ? (

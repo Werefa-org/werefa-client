@@ -1,4 +1,4 @@
-import { ChevronRight, Clock, Plus, Users } from "lucide-react";
+import { ChevronRight, Clock, Plus, Users, Settings } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
@@ -27,6 +27,17 @@ export default async function ServicesPage() {
         title="Services"
         subtitle={provider.biz_name}
         back="/dashboard"
+        trailing={
+          provider.membership_role === "owner" ? (
+            <Link
+              href="/dashboard/settings/profile"
+              className="grid h-10 w-10 place-items-center rounded-xl bg-surface hover:bg-zinc-100"
+              title="Business Settings"
+            >
+              <Settings className="h-4.5 w-4.5 text-muted hover:text-foreground" />
+            </Link>
+          ) : null
+        }
       />
 
       {!verified ? (
