@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import { Search, ShieldAlert, ShieldCheck, Ban, UserCheck, Loader2 } from "lucide-react";
 import { searchUsersAction, unsuspendUserAction } from "@/app/admin/actions";
 import { UserSuspendDialog } from "./UserSuspendDialog";
+import { UserDetailModal } from "./UserDetailModal";
 
 type UserRow = {
   id: string;
@@ -21,6 +22,27 @@ export function UserManagementTable({ initialUsers }: { initialUsers: UserRow[] 
   const [suspendingUser, setSuspendingUser] = useState<UserRow | null>(null);
   const [isPending, startTransition] = useTransition();
   const [actionId, setActionId] = useState<string | null>(null);
+  const [selectedUser, setSelectedUser] = useState<UserRow | null>(null);
+
+  // Auto-search debounced by 500ms
+  useEffect(() => {
+    if (query.trim().length === 0) {
+      setUsers(initialUsers);
+      return;
+    }
+    if (query.trim().length < 3) return;
+
+    const timer = setTimeout(async () => {
+      setSearching(true);
+      const res = await searchUsersAction(query);
+      setSearching(false);
+      if (res.ok && res.users) {
+        setUsers(res.users);
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [query, initialUsers]);
 
   async function handleSearch(e: React.FormEvent) {
     e.preventDefault();
@@ -101,7 +123,11 @@ export function UserManagementTable({ initialUsers }: { initialUsers: UserRow[] 
                     : 0;
 
                   return (
-                    <tr key={u.id} className="hover:bg-surface/30 transition-colors">
+                    <tr
+                      key={u.id}
+                      onClick={() => setSelectedUser(u)}
+                      className="hover:bg-surface/30 transition-colors cursor-pointer select-none"
+                    >
                       {/* Email */}
                       <td className="p-4 font-medium text-foreground max-w-[180px] truncate" title={u.email}>
                         {u.email}
@@ -153,7 +179,7 @@ export function UserManagementTable({ initialUsers }: { initialUsers: UserRow[] 
                       </td>
 
                       {/* Action Buttons */}
-                      <td className="p-4 text-right">
+                      <td className="p-4 text-right" onClick={(e) => e.stopPropagation()}>
                         {u.is_suspended ? (
                           <button
                             type="button"
@@ -193,6 +219,21 @@ export function UserManagementTable({ initialUsers }: { initialUsers: UserRow[] 
           user={suspendingUser}
           onClose={() => setSuspendingUser(null)}
           onSuccess={handleSuspendSuccess}
+        />
+      )}
+
+      {/* User Details Governance Modal */}
+      {selectedUser && (
+        <UserDetailModal
+          user={selectedUser}
+          onClose={() => setSelectedUser(null)}
+          onSuspendToggle={async (usr) => {
+            if (usr.is_suspended) {
+              await handleUnsuspend(usr.id);
+            } else {
+              setSuspendingUser(usr);
+            }
+          }}
         />
       )}
     </div>
