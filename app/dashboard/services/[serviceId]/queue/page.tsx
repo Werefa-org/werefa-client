@@ -4,7 +4,7 @@ import { QueueBoardClient } from "./QueueBoardClient";
 import { AppShell } from "@/components/AppShell";
 import { apiFetch, ApiRequestError } from "@/lib/api/server";
 import type { components } from "@/lib/api/schema";
-import { getMyProvider, getMyService } from "@/lib/dal";
+import { getMyProvider, getMyService, listMyServices } from "@/lib/dal";
 import { getSessionToken } from "@/lib/session";
 
 type Ticket = components["schemas"]["QueueEntryPublic"];
@@ -17,9 +17,10 @@ export default async function QueueBoardPage({
 }) {
   const { serviceId } = await params;
 
-  const [provider, service, token] = await Promise.all([
+  const [provider, service, allServices, token] = await Promise.all([
     getMyProvider(),
     getMyService(serviceId),
+    listMyServices(),
     getSessionToken()
   ]);
   if (!provider) redirect("/dashboard");
@@ -58,6 +59,8 @@ export default async function QueueBoardPage({
           serviceName={service.name}
           initialTickets={tickets}
           token={token}
+          providerId={provider.id}
+          allServices={allServices}
         />
       ) : null}
     </AppShell>

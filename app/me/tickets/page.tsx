@@ -6,9 +6,14 @@ import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/Button";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { listMyTickets } from "@/lib/dal";
+import { getSessionToken } from "@/lib/session";
+import { ActiveTicketsBroadcasts } from "@/components/ActiveTicketsBroadcasts";
 
 export default async function MyTicketsPage() {
-  const tickets = await listMyTickets();
+  const [tickets, token] = await Promise.all([
+    listMyTickets(),
+    getSessionToken(),
+  ]);
 
   const sorted = [...tickets].sort((a, b) => {
     const ta = a.joined_at ? Date.parse(a.joined_at) : 0;
@@ -19,6 +24,9 @@ export default async function MyTicketsPage() {
   return (
     <AppShell>
       <PageHeader title="My tickets" subtitle="Active queue entries" />
+
+      {/* active ticket broadcasts */}
+      <ActiveTicketsBroadcasts tickets={sorted} token={token} />
 
       {sorted.length === 0 ? (
         <div className="flex flex-1 flex-col items-center justify-center gap-3 py-16 text-center">

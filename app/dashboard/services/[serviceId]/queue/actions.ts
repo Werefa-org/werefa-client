@@ -94,3 +94,53 @@ export async function walkInAction(
     return { error: "Could not add walk-in. Try again." };
   }
 }
+
+export async function createBroadcastAction(
+  providerId: string,
+  body: string,
+  severity: "info" | "warning" | "critical",
+  selectedServiceIds: string[],
+): Promise<{ ok: boolean; error?: string }> {
+  if (!body || body.trim().length === 0) {
+    return { ok: false, error: "Announcement message is required." };
+  }
+  if (body.length > 500) {
+    return { ok: false, error: "Message must be 500 characters or fewer." };
+  }
+
+  try {
+    const isProviderWide = selectedServiceIds.length === 0 || selectedServiceIds.includes("ALL");
+
+    if (isProviderWide) {
+      await apiFetch(`/providers/${providerId}/broadcasts`, {
+        method: "POST",
+        body: {
+          body,
+          severity,
+          service_item_id: null,
+          idempotency_key: crypto.randomUUID(),
+        },
+      });
+    } else {
+      await Promise.all(
+        selectedServiceIds.map((id) =>
+          apiFetch(`/providers/${providerId}/broadcasts`, {
+            method: "POST",
+            body: {
+              body,
+              severity,
+              service_item_id: id,
+              idempotency_key: crypto.randomUUID(),
+            },
+          })
+        )
+      );
+    }
+
+    return { ok: true };
+  } catch (err) {
+    if (err instanceof ApiRequestError) return { ok: false, error: err.detail };
+    return { ok: false, error: "Could not send announcement. Try again." };
+  }
+}
+

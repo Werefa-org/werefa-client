@@ -9,6 +9,8 @@ import { StatusPill } from "@/components/ui/StatusPill";
 import { api } from "@/lib/api/client";
 import type { components } from "@/lib/api/schema";
 import { useTicketStream } from "@/hooks/useTicketStream";
+import { useBroadcasts } from "@/hooks/useBroadcasts";
+import { BroadcastBanner } from "@/components/BroadcastBanner";
 
 type Ticket = components["schemas"]["QueueEntryPublic"];
 const initial: CancelState = undefined;
@@ -27,7 +29,12 @@ function relativeTime(iso: string | null | undefined): string | null {
 }
 
 export function LiveTicket({ initialTicket, token }: { initialTicket: Ticket; token: string | null }) {
-  const { ticket, wsState } = useTicketStream(initialTicket, token);
+  const { ticket, wsState, client } = useTicketStream(initialTicket, token);
+  const { broadcasts } = useBroadcasts({
+    providerId: ticket.provider_id,
+    token,
+    wsClient: client,
+  });
 
   const cancelAction = cancelTicketAction.bind(
     null,
@@ -45,6 +52,9 @@ export function LiveTicket({ initialTicket, token }: { initialTicket: Ticket; to
 
   return (
     <div className="flex flex-col gap-4">
+      {/* Broadcast Announcements */}
+      <BroadcastBanner broadcasts={broadcasts} />
+
       {isServing ? (
         <div className="flex flex-col items-center gap-3 rounded-3xl bg-emerald-600 p-8 text-center text-white shadow-lg">
           <div className="grid h-14 w-14 place-items-center rounded-2xl bg-white/15">

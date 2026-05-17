@@ -24,5 +24,5 @@ export function useTicketStream(initialTicket: Ticket, token: string | null) {
     });
   }, [client, ticket.id]);
 
-  return { ticket, wsState };
+  return { ticket, wsState, client };
 }

@@ -1,6 +1,7 @@
 "use client";
 
-import { Clock, Loader2 } from "lucide-react";
+import { useState } from "react";
+import { Clock, Loader2, Megaphone } from "lucide-react";
 import { CallNextButton } from "./CallNextButton";
 import { GenerateInviteButton } from "./GenerateInviteButton";
 import { ServingActions } from "./ServingActions";
@@ -9,8 +10,11 @@ import { StatusPill } from "@/components/ui/StatusPill";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { useQueueStream } from "@/hooks/useQueueStream";
 import type { components } from "@/lib/api/schema";
+import { useBroadcasts } from "@/hooks/useBroadcasts";
+import { BroadcastModal } from "@/components/BroadcastModal";
 
 type Ticket = components["schemas"]["QueueEntryPublic"];
+type MyService = { id: string; name: string };
 
 function relativeTime(iso: string | null | undefined): string | null {
   if (!iso) return null;
@@ -54,12 +58,23 @@ export function QueueBoardClient({
   serviceName,
   initialTickets,
   token,
+  providerId,
+  allServices,
 }: {
   serviceId: string;
   serviceName: string;
   initialTickets: Ticket[];
   token: string | null;
+  providerId: string;
+  allServices: MyService[];
 }) {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { broadcasts, refresh: refreshBroadcasts } = useBroadcasts({
+    providerId,
+    token,
+    wsClient: null,
+  });
+
   const { tickets, wsState, isRefreshing, refreshTickets } = useQueueStream(
     serviceId,
     initialTickets,
@@ -89,6 +104,15 @@ export function QueueBoardClient({
         title={serviceName}
         subtitle={`${waiting.length} waiting · ${serving.length} serving`}
         back="/dashboard/services"
+        trailing={
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="flex items-center gap-1.5 rounded-xl bg-accent px-3 py-2 text-xs font-semibold text-accent-foreground hover:bg-accent/90 transition-colors shadow-sm cursor-pointer"
+          >
+            <Megaphone className="h-3.5 w-3.5" />
+            Send Announcement
+          </button>
+        }
       />
 
       <div className="flex items-center justify-between mb-4">
@@ -201,6 +225,46 @@ export function QueueBoardClient({
           </ul>
         </details>
       ) : null}
+
+      <details className="mt-6 rounded-2xl border border-border bg-surface p-4" open>
+        <summary className="cursor-pointer text-sm font-medium">
+          Recent Announcements ({broadcasts.length})
+        </summary>
+        {broadcasts.length === 0 ? (
+          <p className="mt-3 text-xs text-muted">No announcements posted recently.</p>
+        ) : (
+          <ul className="mt-3 flex flex-col gap-3">
+            {broadcasts.map((b) => (
+              <li key={b.id} className="rounded-xl border border-border bg-background p-3.5">
+                <div className="flex justify-between items-start gap-2">
+                  <div className="flex items-center gap-1.5">
+                    <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${
+                      b.severity === "critical" ? "bg-rose-100 text-rose-800" :
+                      b.severity === "warning" ? "bg-amber-100 text-amber-800" :
+                      "bg-blue-100 text-blue-800"
+                    }`}>
+                      {b.severity === "critical" ? "Urgent" : b.severity}
+                    </span>
+                    <span className="text-[10px] font-semibold text-muted">
+                      Target: {b.service_item_id ? (allServices.find(s => s.id === b.service_item_id)?.name ?? "Service Line") : "All Services"}
+                    </span>
+                  </div>
+                  <span className="text-[10px] text-muted">{relativeTime(b.created_at)}</span>
+                </div>
+                <p className="mt-2 text-xs font-semibold text-foreground leading-relaxed">{b.body}</p>
+              </li>
+            ))}
+          </ul>
+        )}
+      </details>
+
+      <BroadcastModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        providerId={providerId}
+        services={allServices}
+        onSuccess={refreshBroadcasts}
+      />
     </>
   );
 }
