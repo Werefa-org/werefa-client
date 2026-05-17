@@ -74,10 +74,7 @@ export default async function DashboardPage() {
                     </span>
                   )}
                   {!isSelected ? (
-                    <form
-                      action={select}
-                      className="border-l border-border"
-                    >
+                    <form action={select} className="border-l border-border">
                       <button
                         type="submit"
                         className="h-12 w-full cursor-pointer text-sm font-medium text-muted hover:bg-surface"
@@ -97,6 +94,15 @@ export default async function DashboardPage() {
         </ul>
       ) : null}
 
+      {selected && selected.membership_role === "owner" ? (
+        <Link
+          href="/dashboard/members"
+          className="mt-4 flex h-12 w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-border text-sm font-medium text-muted hover:border-accent hover:bg-surface hover:text-accent"
+        >
+          Manage members
+        </Link>
+      ) : null}
+
       {providers.length === 0 && isProvider ? (
         <div className="rounded-2xl border border-dashed border-border p-8 text-center">
           <p className="text-sm font-medium">No businesses yet</p>
@@ -111,7 +117,9 @@ export default async function DashboardPage() {
         className="mt-4 flex h-12 w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-border text-sm font-medium text-muted hover:border-accent hover:bg-surface hover:text-accent"
       >
         <Plus className="h-4 w-4" aria-hidden />
-        {providers.length === 0 ? "Create your first business" : "Add another business"}
+        {providers.length === 0
+          ? "Create your first business"
+          : "Add another business"}
       </Link>
     </AppShell>
   );
