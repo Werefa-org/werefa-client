@@ -16,6 +16,7 @@ import { BroadcastModal } from "@/components/BroadcastModal";
 import { QueuePauseToggle } from "@/components/QueuePauseToggle";
 import { AccessCodeDisplay } from "@/components/AccessCodeDisplay";
 import { TicketLivenessStatus, TicketLivenessDetailsPanel } from "@/components/TicketLivenessStatus";
+import { KioskSyncWidget } from "./KioskSyncWidget";
 
 type Ticket = components["schemas"]["QueueEntryPublic"];
 type MyService = { id: string; name: string };
@@ -189,6 +190,9 @@ export function QueueBoardClient({
 
         <div>
           <AccessCodeDisplay providerId={providerId} />
+          <div className="mt-4">
+            <KioskSyncWidget serviceId={serviceId} />
+          </div>
         </div>
       </div>
 

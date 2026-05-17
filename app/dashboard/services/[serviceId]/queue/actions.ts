@@ -218,3 +218,33 @@ export async function recallLastTicketAction(
   }
 }
 
+export async function syncKioskBatchAction(
+  serviceId: string,
+  _prev: QueueActionState,
+  _fd: FormData,
+): Promise<QueueActionState> {
+  try {
+    const walk_ins = [
+      { guest_name: `Kiosk User ${Math.floor(Math.random() * 1000)}` },
+      { guest_name: `Kiosk User ${Math.floor(Math.random() * 1000)}` },
+      { guest_name: `Kiosk User ${Math.floor(Math.random() * 1000)}` }
+    ];
+    
+    const res = await apiFetch<{ tickets: QueueEntry[] }>(
+      `/service-items/${serviceId}/kiosk-sync-batch`,
+      { 
+        method: "POST",
+        body: {
+          idempotency_key: crypto.randomUUID(),
+          walk_ins
+        }
+      }
+    );
+    revalidatePath(`/dashboard/services/${serviceId}/queue`);
+    return { ok: true, message: `Successfully synced ${res.tickets.length} walk-ins from kiosk.` };
+  } catch (err) {
+    if (err instanceof ApiRequestError) return { error: err.detail };
+    return { error: "Could not sync kiosk batch. Try again." };
+  }
+}
+
